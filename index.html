@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bảng Điểm - CNTT 2.K24</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root { --primary-color: #2c5282; --bg-light: #f7fafc; --border-color: #e2e8f0; --warning-color: #d69e2e; }
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; background-color: #f0f2f5; color: #333; }
+        
+        .header { background-color: var(--primary-color); color: white; padding: 25px 20px; text-align: center; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .header h1 { margin: 0; font-size: 28px; text-transform: uppercase; letter-spacing: 1px; }
+        .header p { margin: 8px 0 0; opacity: 0.9; font-size: 16px; font-weight: 500; }
+
+        .container { display: flex; flex-wrap: wrap; gap: 20px; max-width: 1200px; margin: 20px auto; padding: 0 15px; }
+        .left-panel { flex: 1; min-width: 300px; }
+        .right-panel { flex: 2; min-width: 500px; }
+        .card { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); border: 1px solid var(--border-color); margin-bottom: 20px; }
+        .card h3 { margin-top: 0; color: var(--primary-color); border-bottom: 2px solid #edf2f7; padding-bottom: 10px; display: flex; align-items: center; gap: 10px; }
+        .form-group { margin-bottom: 15px; }
+        .form-row { display: flex; gap: 15px; }
+        .form-row .form-group { flex: 1; }
+        label { display: block; margin-bottom: 5px; font-weight: 600; font-size: 0.9em; }
+        input, select { width: 100%; padding: 10px; border: 1px solid #cbd5e0; border-radius: 6px; box-sizing: border-box; }
+        
+        .btn-group { display: flex; gap: 10px; margin-top: 20px; }
+        button { flex: 1; padding: 10px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; transition: 0.3s; }
+        
+        /* Button Styles */
+        .btn-save { background-color: var(--primary-color); color: white; }
+        .btn-save:hover { background-color: #1a365d; }
+        .btn-update { background-color: var(--warning-color); color: white; } /* Màu vàng cho nút cập nhật */
+        .btn-update:hover { background-color: #b7791f; }
+        .btn-reset { background-color: #e2e8f0; color: #4a5568; }
+        .btn-reset:hover { background-color: #cbd5e0; }
+
+        table { width: 100%; border-collapse: collapse; font-size: 14px; }
+        th { background-color: var(--primary-color); color: white; padding: 12px 8px; }
+        td { border-bottom: 1px solid var(--border-color); padding: 10px 8px; text-align: center; }
+        
+        .badge { padding: 4px 8px; border-radius: 12px; font-size: 12px; font-weight: bold; }
+        .pass { background-color: #c6f6d5; color: #22543d; }.fail { background-color: #fed7d7; color: #822727; }
+        
+        /* Action buttons in table */
+        .action-btn { padding: 6px 10px; border-radius: 4px; color: white; cursor: pointer; border: none; margin: 0 2px; }
+        .edit-btn { background-color: #4299e1; }
+        .edit-btn:hover { background-color: #3182ce; }
+        .delete-btn { background-color: #fc8181; }
+        .delete-btn:hover { background-color: #e53e3e; }
+        
+        .table-responsive { overflow-x: auto; }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1><i class="fas fa-university"></i> Bảng điểm học phần</h1>
+        <p>Lớp Công nghệ thông tin 2.K24</p>
+    </div>
+
+    <div class="container">
+        <div class="left-panel">
+            <div class="card">
+                <h3 id="formTitle"><i class="fas fa-edit"></i> Nhập điểm học phần</h3>
+                
+                <div class="form-group"> <label>Tên học phần *</label> <input type="text" id="tenHP" placeholder="VD: Toán cao cấp"> </div>
+                <div class="form-group"> <label>Mã học phần *</label> <input type="text" id="maHP" placeholder="VD: MATH101"> </div>
+                <div class="form-row">
+                    <div class="form-group"> <label>Số tín chỉ</label> <select id="soTC"> <option value="2">2</option> <option value="3" selected>3</option> <option value="4">4</option> </select> </div>
+                    <div class="form-group"> <label>Học kỳ</label> <select id="hocKy"> <option value="1">1</option> <option value="2">2</option> <option value="Hè">Hè</option> </select> </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group"> <label>Điểm CC (20%)</label> <input type="number" id="diemCC" value="8.0"> </div>
+                    <div class="form-group"> <label>Điểm Kiểm tra (30%)</label> <input type="number" id="diemKT" value="7.5"> </div>
+                </div>
+                <div class="form-group"> <label>Điểm thi * (50%)</label> <input type="number" id="diemThi" value="8.5"> </div>
+
+                <div class="btn-group">
+                    <button class="btn-save" id="btnAction" onclick="saveData()"><i class="fas fa-save"></i> Lưu học phần</button>
+                    <button class="btn-reset" onclick="resetForm()"><i class="fas fa-sync"></i> Làm mới</button>
+                </div>
+            </div>
+            <div class="card">
+                <h3><i class="fas fa-chart-pie"></i> Thống kê</h3>
+                <p>Tổng tín chỉ: <strong id="totalCredits">0</strong></p>
+                <p>GPA: <strong id="gpaScore" style="color: var(--primary-color);">0.00</strong></p>
+                <button onclick="xoaTatCa()" style="background: #e53e3e; color: white; width: 100%; margin-top: 10px;"><i class="fas fa-trash"></i> Xóa tất cả dữ liệu</button>
+            </div>
+        </div><div class="right-panel">
+            <div class="card">
+                <h3><i class="fas fa-list-alt"></i> Bảng điểm chi tiết</h3>
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Mã HP</th> <th style="text-align: left;">Tên Học Phần</th> <th>TC</th> <th>HK</th> 
+                                <th>CC</th> <th>KT</th> <th>Thi</th> <th>Tổng</th> <th>Chữ</th> <th>KQ</th> <th>Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody id="scoreTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // CONFIG
+        const STORAGE_KEY = 'quan_ly_diem_cntt_k24'; 
+        
+        // Biến toàn cục để theo dõi trạng thái Sửa ( -1 là thêm mới, >= 0 là vị trí đang sửa)
+        let editingIndex = -1;
+
+        // --- HÀM TÍNH ĐIỂM ---
+        function calculateResults(cc, kt, thi) {
+            // Công thức: 20% CC + 30% KT + 50% Thi
+            const tk = (cc * 0.2) + (kt * 0.3) + (thi * 0.5);
+            const tkRounded = Math.round(tk * 10) / 10;
+            let chu = 'F', he4 = 0, ketQua = 'Rớt';
+            
+            if (tkRounded >= 8.5) { chu = 'A'; he4 = 4.0; }
+            else if (tkRounded >= 8.0) { chu = 'B+'; he4 = 3.5; }
+            else if (tkRounded >= 7.0) { chu = 'B'; he4 = 3.0; }
+            else if (tkRounded >= 6.5) { chu = 'C+'; he4 = 2.5; }
+            else if (tkRounded >= 5.5) { chu = 'C'; he4 = 2.0; }
+            else if (tkRounded >= 5.0) { chu = 'D+'; he4 = 1.5; }
+            else if (tkRounded >= 4.0) { chu = 'D'; he4 = 1.0; }
+            
+            if (tkRounded >= 4.0 && thi >= 3.0) ketQua = 'Đạt';
+            return { tk: tkRounded, chu, ketQua, he4 };
+        }
+
+        // --- HÀM HIỂN THỊ DỮ LIỆU ---
+        function loadData() {
+            const data = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+            const tableBody = document.getElementById('scoreTableBody');
+            let html = "";
+            let totalCredits = 0;
+            let totalWeightedScore = 0;
+
+            if (data.length === 0) {
+                tableBody.innerHTML = `<tr><td colspan="11" style="text-align:center; padding: 20px;">Chưa có dữ liệu.</td></tr>`;
+                document.getElementById('totalCredits').innerText = 0;
+                document.getElementById('gpaScore').innerText = "0.00";
+                return;
+            }
+
+            // Duyệt mảng (đảo ngược để cái mới nhất lên đầu)
+            data.slice().reverse().forEach((item, index) => {
+                const realIndex = data.length - 1 - index; // Lấy vị trí thực trong mảng gốc
+                
+                totalCredits += parseInt(item.soTC);totalWeightedScore += (item.he4 * item.soTC);
+                const badgeClass = item.ketQua === 'Đạt' ? 'pass' : 'fail';
+                
+                html += `
+                    <tr>
+                        <td><strong>${item.maHP}</strong></td>
+                        <td style="text-align: left;">${item.tenHP}</td>
+                        <td>${item.soTC}</td>
+                        <td>${item.hocKy}</td>
+                        <td>${item.diemCC}</td>
+                        <td>${item.diemKT}</td>
+                        <td><strong>${item.diemThi}</strong></td>
+                        <td style="color: var(--primary-color); font-weight: bold;">${item.tk}</td>
+                        <td>${item.chu}</td>
+                        <td><span class="badge ${badgeClass}">${item.ketQua}</span></td>
+                        <td>
+                            <button class="action-btn edit-btn" onclick="chuanBiSua(${realIndex})" title="Sửa"><i class="fas fa-edit"></i></button>
+                            <button class="action-btn delete-btn" onclick="xoaHocPhan(${realIndex})" title="Xóa"><i class="fas fa-trash"></i></button>
+                        </td>
+                    </tr>
+                `;
+            });
+            tableBody.innerHTML = html;
+            document.getElementById('totalCredits').innerText = totalCredits;
+            const gpa = totalCredits === 0 ? 0 : (totalWeightedScore / totalCredits).toFixed(2);
+            document.getElementById('gpaScore').innerText = gpa;
+        }
+
+        // --- CHỨC NĂNG LƯU (XỬ LÝ CẢ THÊM MỚI VÀ CẬP NHẬT) ---
+        function saveData() {
+            const tenHP = document.getElementById('tenHP').value;
+            const maHP = document.getElementById('maHP').value;
+            const soTC = parseInt(document.getElementById('soTC').value);
+            const hocKy = document.getElementById('hocKy').value;
+            const diemCC = parseFloat(document.getElementById('diemCC').value || 0);
+            const diemKT = parseFloat(document.getElementById('diemKT').value || 0);
+            const diemThi = parseFloat(document.getElementById('diemThi').value || 0);
+
+            if (!tenHP || !maHP) { alert("Vui lòng nhập Tên và Mã học phần!"); return; }
+
+            const kq = calculateResults(diemCC, diemKT, diemThi);
+            const itemData = { tenHP, maHP, soTC, hocKy, diemCC, diemKT, diemThi, tk: kq.tk, chu: kq.chu, ketQua: kq.ketQua, he4: kq.he4 };
+
+            let currentData = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+
+            if (editingIndex > -1) {
+                // ĐANG Ở CHẾ ĐỘ SỬA: Cập nhật dữ liệu tại vị trí cũ
+                currentData[editingIndex] = itemData;
+                alert("Đã cập nhật thành công!");
+                // Thoát chế độ sửa sau khi lưu
+                editingIndex = -1; 
+            } else {
+                // ĐANG Ở CHẾ ĐỘ THÊM MỚIcurrentData.push(itemData);
+                alert("Đã thêm mới thành công!");
+            }
+
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(currentData));
+            resetForm(); // Reset form và giao diện nút
+            loadData();  // Vẽ lại bảng
+        }
+
+        // --- CHỨC NĂNG CHUẨN BỊ SỬA (ĐẨY DỮ LIỆU LÊN FORM) ---
+        function chuanBiSua(index) {
+            const data = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+            const item = data[index];
+
+            if(!item) return;
+
+            // 1. Điền dữ liệu vào ô input
+            document.getElementById('tenHP').value = item.tenHP;
+            document.getElementById('maHP').value = item.maHP;
+            document.getElementById('soTC').value = item.soTC;
+            document.getElementById('hocKy').value = item.hocKy;
+            document.getElementById('diemCC').value = item.diemCC;
+            document.getElementById('diemKT').value = item.diemKT;
+            document.getElementById('diemThi').value = item.diemThi;
+
+            // 2. Chuyển sang chế độ Sửa
+            editingIndex = index;
+
+            // 3. Đổi giao diện nút bấm
+            const btn = document.getElementById('btnAction');
+            btn.innerHTML = '<i class="fas fa-check-circle"></i> Cập nhật điểm';
+            btn.className = 'btn-update'; // Đổi màu sang vàng
+            
+            document.getElementById('formTitle').innerHTML = '<i class="fas fa-edit"></i> Cập nhật học phần';
+
+            // 4. Cuộn màn hình lên form để user thấy
+            document.querySelector('.container').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function xoaHocPhan(index) {
+            if(confirm("Bạn muốn xóa môn này?")) {
+                const currentData = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+                currentData.splice(index, 1);
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(currentData));
+                
+                // Nếu đang sửa đúng môn vừa xóa thì reset form luôn
+                if (editingIndex === index) resetForm();
+                
+                loadData();
+            }
+        }
+
+        function xoaTatCa() {
+            if(confirm("CẢNH BÁO: Xóa toàn bộ dữ liệu?")) {
+                localStorage.removeItem(STORAGE_KEY);
+                resetForm();
+                loadData();
+            }
+        }
+
+        function resetForm() {
+            // Xóa trắng input
+            document.getElementById('tenHP').value = '';
+            document.getElementById('maHP').value = '';
+            document.getElementById('diemCC').value = '8.0';
+            document.getElementById('diemKT').value = '7.5';
+            document.getElementById('diemThi').value = '8.5';
+            
+            // Reset trạng thái về Thêm mới
+            editingIndex = -1;// Reset giao diện nút bấm về màu xanh
+            const btn = document.getElementById('btnAction');
+            btn.innerHTML = '<i class="fas fa-save"></i> Lưu học phần';
+            btn.className = 'btn-save';
+
+            document.getElementById('formTitle').innerHTML = '<i class="fas fa-edit"></i> Nhập điểm học phần';
+        }
+
+        window.onload = loadData;
+    </script>
+</body>
+</html>
